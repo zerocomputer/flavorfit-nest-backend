@@ -1,0 +1,69 @@
+// ============================================================================
+// МОДУЛЬ: Задачи и Планирование
+// ============================================================================
+// Сущности: Типы тегов задач, Задачи, Теги задач
+
+enum TaskStatus {
+  PENDING // планируется
+  COMPLETED // завершена
+  CANCELLED // отменена
+}
+
+enum TaskTagTypeEnum {
+  MEAL // прием пищи
+  HYDRATION // употребление жидкости
+  CALORIES // ккал
+  TIME // время
+  TRAINING // тренировка
+}
+
+model TaskTagType {
+  id    Int             @id @default(autoincrement())
+  type  TaskTagTypeEnum
+  color String? // для UI (красный для завтрака, желтый для перекуса и т.д.)
+
+  tags TaskTag[]
+
+  createdAt DateTime @default(now())
+
+  @@map("task_tag_types")
+}
+
+model Task {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  text     String
+  taskDate DateTime // дата задачи (день)
+
+  plannedStartTime DateTime? // время планируемого начала выполнения
+  plannedEndTime   DateTime? // время планируемого окончания выполнения
+
+  completedAt DateTime? // время выполнения (отмечается после выполнения)
+  status      TaskStatus @default(PENDING)
+
+  tags TaskTag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, taskDate])
+  @@map("tasks")
+}
+
+model TaskTag {
+  id     Int  @id @default(autoincrement())
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  tagTypeId Int
+  tagType   TaskTagType @relation(fields: [tagTypeId], references: [id], onDelete: Cascade)
+
+  text String
+
+  createdAt DateTime @default(now())
+
+  @@unique([taskId, tagTypeId])
+  @@map("task_tags")
+}

@@ -1,0 +1,116 @@
+// ============================================================================
+// ГЛАВНАЯ SCHEMA.PRISMA - КОНФИГУРАЦИЯ И ОБЪЕДИНЕНИЕ ВСЕХ МОДУЛЕЙ
+// ============================================================================
+// Используйте эту конфигурацию в своей основной schema.prisma файле
+
+generator client {
+  provider = "prisma-client-js"
+  // Опционально для продакшена
+  // binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql" // или другой DB (mysql, sqlite, sqlserver)
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// МОДУЛИ (подключите через @@include директивы если разделяете на файлы)
+// ============================================================================
+
+// Для разделения на несколько файлов используйте подход:
+//
+// 1. Создайте файлы:
+//    - prisma/auth.prisma
+//    - prisma/recipes.prisma
+//    - prisma/orders.prisma
+//    - prisma/tasks.prisma
+//    - prisma/notifications.prisma
+//    - prisma/forum.prisma
+//
+// 2. В главном schema.prisma добавьте подключение модулей:
+//
+// @@include("./auth.prisma")
+// @@include("./recipes.prisma")
+// @@include("./orders.prisma")
+// @@include("./tasks.prisma")
+// @@include("./notifications.prisma")
+// @@include("./forum.prisma")
+
+// ============================================================================
+// ПРИМЕЧАНИЯ ДЛЯ РЕАЛИЗАЦИИ
+// ============================================================================
+
+/*
+
+1. СТРУКТУРА ПАПОК:
+   prisma/
+   ├── schema.prisma (главная)
+   ├── auth.prisma
+   ├── recipes.prisma
+   ├── orders.prisma
+   ├── tasks.prisma
+   ├── notifications.prisma
+   └── forum.prisma
+
+2. МИГРАЦИИ:
+   - npx prisma migrate dev --name init
+   - npx prisma generate
+
+3. ENUM ПРОБЛЕМЫ В ФАЙЛАХ:
+   - Если используете несколько файлов, перечислите enum один раз
+   - В данном примере enums определены непосредственно в соответствующих файлах
+   - Prisma v5+ поддерживает @@include для модульной структуры
+
+4. ОТНОШЕНИЯ МЕЖДУ МОДУЛЯМИ:
+   - auth.prisma -> recipes.prisma: User -> Recipe (Recipe.author)
+   - auth.prisma -> orders.prisma: User -> Order (Order.customer, Order.courier)
+   - auth.prisma -> tasks.prisma: User -> Task
+   - auth.prisma -> notifications.prisma: User -> Notification (двусторонние)
+   - auth.prisma -> forum.prisma: User -> ForumTopic, ForumMessage, ForumSubscription
+   - recipes.prisma -> orders.prisma: Recipe -> OrderRecipe, Ingredient -> OrderIngredient
+   - tasks.prisma: самостоятельный модуль
+   - notifications.prisma: зависит от других модулей через JSON context
+   - forum.prisma: самостоятельный модуль
+
+5. SOFT DELETE СТРАТЕГИЯ:
+   - Используйте поле deletedAt: DateTime? для мягкого удаления
+   - При выборке добавляйте условие where: { deletedAt: null }
+   - Для полного удаления обновляйте deletedAt
+
+6. АУДИТ И TIMESTAMPS:
+   - createdAt: DateTime @default(now()) - автоматически
+   - updatedAt: DateTime @updatedAt - автоматически обновляется
+   - deletedAt: DateTime? для soft delete (вручную устанавливается)
+
+7. ОПТИМИЗАЦИЯ ЗАПРОСОВ:
+   - Используйте @index для часто фильтруемых полей
+   - @@index([userId, taskDate]) для Query.where({ userId, taskDate })
+   - Рассмотрите использование database-level indexes для больших таблиц
+
+8. ВАЛИДАЦИЯ:
+   - @unique для полей которые должны быть уникальны
+   - @@unique([fieldA, fieldB]) для составных ключей
+   - Используйте validator в приложении дополнительно
+
+9. CASCADE DELETE:
+   - onDelete: Cascade - удаляет дочерние записи при удалении родителя
+   - onDelete: SetNull - обнуляет foreign key (требует nullable field)
+   - Убедитесь что это соответствует бизнес-логике
+
+10. JSON ПОЛЯ:
+    - context Json в Notification - хранит разные структуры
+    - Задайте правильный тип на уровне приложения
+    - Используйте TypeScript для типизации JSON
+
+11. ПЕРЕЧИСЛЕНИЯ:
+    - TaskStatus, OrderStatus, NotificationType, TaskTagType определены как enum
+    - Prisma генерирует TypeScript типы автоматически
+    - Используйте в коде: status as Task['status']
+
+12. ПРОИЗВОДИТЕЛЬНОСТЬ:
+    - Для больших таблиц рассмотрите: мониторинг индексов
+    - Используйте prisma.$queryRaw для сложных аналитических запросов
+    - Кэшируйте часто запрашиваемые данные (категории, уровни активности и т.д.)
+
+*/
