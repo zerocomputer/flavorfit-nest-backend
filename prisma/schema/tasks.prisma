@@ -30,9 +30,9 @@ model TaskTagType {
 }
 
 model Task {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     Int    @id @default(autoincrement())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   text     String
   taskDate DateTime // дата задачи (день)

@@ -4,179 +4,179 @@
 // Сущности: Категории, Рецепты, Ингредиенты, Шаги, Изображения, Комментарии
 
 model RecipeCategory {
-  id            Int                @id @default(autoincrement())
-  name          String             @unique
+  id            Int              @id @default(autoincrement())
+  name          String           @unique
   icon          String?
   parentId      Int?
-  parent        RecipeCategory?    @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
-  subcategories RecipeCategory[]   @relation("CategoryHierarchy")
+  parent        RecipeCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  subcategories RecipeCategory[] @relation("CategoryHierarchy")
   recipes       Recipe[]
 
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("recipe_categories")
 }
 
 model Recipe {
-  id                      Int                 @id @default(autoincrement())
-  title                   String
-  authorId                Int
-  author                  User                @relation("RecipeAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  description             String
-  
-  // Nutrition per serving
-  carbohydrates           Float
-  proteins                Float
-  fats                    Float
-  fiber                   Float
-  calories                Float
-  
-  // Order info
-  portionWeight           Float
-  portionPrice            Float
-  minPortions             Int
-  maxPortions             Int
-  
-  // Preparation
-  preparationTime         Int                 // in minutes
-  complexity              String              // 'easy' | 'medium' | 'hard'
-  
-  // Relations
-  categoryId              Int?
-  category                RecipeCategory?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  ingredients             RecipeIngredient[]
-  steps                   RecipeStep[]
-  images                  RecipeImage[]
-  comments                RecipeComment[]
-  views                   RecipeView[]
-  likes                   RecipeLike[]
-  orderRecipes            OrderRecipe[]
+  id          Int    @id @default(autoincrement())
+  title       String
+  authorId    String
+  author      User   @relation("RecipeAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  description String
 
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
-  deletedAt               DateTime?           // Soft delete
+  // Nutrition per serving
+  carbohydrates Float
+  proteins      Float
+  fats          Float
+  fiber         Float
+  calories      Float
+
+  // Order info
+  portionWeight Float
+  portionPrice  Float
+  minPortions   Int
+  maxPortions   Int
+
+  // Preparation
+  preparationTime Int // in minutes
+  complexity      String // 'easy' | 'medium' | 'hard'
+
+  // Relations
+  categoryId   Int?
+  category     RecipeCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  ingredients  RecipeIngredient[]
+  steps        RecipeStep[]
+  images       RecipeImage[]
+  comments     RecipeComment[]
+  views        RecipeView[]
+  likes        RecipeLike[]
+  orderRecipes OrderRecipe[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
 
   @@map("recipes")
 }
 
 model Ingredient {
-  id                      Int                 @id @default(autoincrement())
-  name                    String              @unique
-  icon                    String?
-  description             String?
-  unit                    String              // 'grams' | 'pieces' | 'ml'
-  
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  icon        String?
+  description String?
+  unit        String // 'grams' | 'pieces' | 'ml'
+
   // Inventory
-  minQuantity             Float
-  maxQuantity             Float
-  pricePerUnit            Float
-  
+  minQuantity  Float
+  maxQuantity  Float
+  pricePerUnit Float
+
   // Dates
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
-  outOfStockAt            DateTime?           // When product ended
-  deletedAt               DateTime?           // Soft delete
-  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  outOfStockAt DateTime? // When product ended
+  deletedAt    DateTime? // Soft delete
+
   // Relations
-  recipeIngredients       RecipeIngredient[]
-  orderIngredients        OrderIngredient[]
+  recipeIngredients RecipeIngredient[]
+  orderIngredients  OrderIngredient[]
 
   @@map("ingredients")
 }
 
 model RecipeIngredient {
-  id                      Int       @id @default(autoincrement())
-  recipeId                Int
-  recipe                  Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  ingredientId            Int
-  ingredient              Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-  quantity                Float
+  id           Int        @id @default(autoincrement())
+  recipeId     Int
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredientId Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  quantity     Float
 
   @@unique([recipeId, ingredientId])
   @@map("recipe_ingredients")
 }
 
 model RecipeStep {
-  id                      Int       @id @default(autoincrement())
-  recipeId                Int
-  recipe                  Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  stepNumber              Int
-  title                   String
-  description             String
-  image                   String?
+  id          Int     @id @default(autoincrement())
+  recipeId    Int
+  recipe      Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  stepNumber  Int
+  title       String
+  description String
+  image       String?
 
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([recipeId, stepNumber])
   @@map("recipe_steps")
 }
 
 model RecipeImage {
-  id                      Int       @id @default(autoincrement())
-  recipeId                Int
-  recipe                  Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  url                     String
+  id       Int    @id @default(autoincrement())
+  recipeId Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  url      String
 
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  deletedAt               DateTime? // Soft delete
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
 
   @@map("recipe_images")
 }
 
 model RecipeView {
-  id                      Int       @id @default(autoincrement())
-  recipeId                Int
-  recipe                  Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  viewerId                Int
-  viewer                  User      @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  recipeId Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewer   User   @relation(fields: [viewerId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([recipeId, viewerId])
   @@map("recipe_views")
 }
 
 model RecipeComment {
-  id                      Int       @id @default(autoincrement())
-  recipeId                Int
-  recipe                  Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  authorId                Int
-  author                  User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  text                    String
-  likes                   CommentLike[]
+  id       Int           @id @default(autoincrement())
+  recipeId Int
+  recipe   Recipe        @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  text     String
+  likes    CommentLike[]
 
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("recipe_comments")
 }
 
 model RecipeLike {
-  id                      Int       @id @default(autoincrement())
-  recipeId                Int
-  recipe                  Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  userId                  Int
-  user                    User      @relation("UserRecipeLike", fields: [userId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  recipeId Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation("UserRecipeLike", fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
-  removedAt               DateTime? // For analytics
+  createdAt DateTime  @default(now())
+  removedAt DateTime? // For analytics
 
   @@unique([recipeId, userId])
   @@map("recipe_likes")
 }
 
 model CommentLike {
-  id                      Int       @id @default(autoincrement())
-  commentId               Int
-  comment                 RecipeComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  userId                  Int
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int           @id @default(autoincrement())
+  commentId Int
+  comment   RecipeComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
-  removedAt               DateTime? // For analytics
+  createdAt DateTime  @default(now())
+  removedAt DateTime? // For analytics
 
   @@unique([commentId, userId])
   @@map("comment_likes")

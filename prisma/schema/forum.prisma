@@ -4,72 +4,72 @@
 // Сущности: Темы, Подписчики, Сообщения, Лайки сообщений
 
 model ForumTopic {
-  id                      Int       @id @default(autoincrement())
-  creatorId               Int
-  creator                 User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  
-  title                   String
-  description             String
-  
-  messages                ForumMessage[]
-  subscribers             ForumSubscription[]
+  id        String @id @default(cuid())
+  creatorId String
+  creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  deletedAt               DateTime? // Soft delete
+  title       String
+  description String
+
+  messages    ForumMessage[]
+  subscribers ForumSubscription[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
 
   @@map("forum_topics")
 }
 
 model ForumSubscription {
-  id                      Int       @id @default(autoincrement())
-  topicId                 Int
-  topic                   ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  
-  subscriberId            Int
-  subscriber              User      @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  id      Int        @id @default(autoincrement())
+  topicId String
+  topic   ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
+  subscriberId String
+  subscriber   User   @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 
   @@unique([topicId, subscriberId])
   @@map("forum_subscriptions")
 }
 
 model ForumMessage {
-  id                      Int       @id @default(autoincrement())
-  topicId                 Int
-  topic                   ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  
-  authorId                Int
-  author                  User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
-  // Ответ на другое сообщение (если есть)
-  replyToId               Int?
-  replyTo                 ForumMessage? @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: Cascade)
-  replies                 ForumMessage[] @relation("MessageReplies")
-  
-  text                    String
-  attachmentUrls          String[] // URLs на изображения (JSON array в БД)
-  
-  likes                   ForumMessageLike[]
+  id      Int        @id @default(autoincrement())
+  topicId String
+  topic   ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  deletedAt               DateTime? // Soft delete
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Ответ на другое сообщение (если есть)
+  replyToId Int?
+  replyTo   ForumMessage?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: Cascade)
+  replies   ForumMessage[] @relation("MessageReplies")
+
+  text           String
+  attachmentUrls String[] // URLs на изображения (JSON array в БД)
+
+  likes ForumMessageLike[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
 
   @@index([topicId])
   @@map("forum_messages")
 }
 
 model ForumMessageLike {
-  id                      Int       @id @default(autoincrement())
-  messageId               Int
-  message                 ForumMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  
-  userId                  Int
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int          @id @default(autoincrement())
+  messageId Int
+  message   ForumMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 
   @@unique([messageId, userId])
   @@map("forum_message_likes")
