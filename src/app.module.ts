@@ -1,19 +1,19 @@
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { ApolloDriver } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 import { AppResolver } from './app.resolver'
+import { graphqlConfig } from './configs'
 import { TasksModule } from './modules/tasks/tasks.module'
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    ConfigModule.forRoot({ isGlobal: true }),
+    GraphQLModule.forRootAsync({
       driver: ApolloDriver,
-      autoSchemaFile: true,
-      sortSchema: true,
-      playground: true,
-      context: ({ req, res }) => ({ req, res }),
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: graphqlConfig,
     }),
 
     TasksModule,
