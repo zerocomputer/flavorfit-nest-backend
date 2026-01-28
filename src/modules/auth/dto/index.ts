@@ -1,4 +1,3 @@
-export * from './auth.input'
-export * from './create-user.input'
-export * from './find-user.input'
-export * from './registration.input'
+export * from './sign-in.input'
+export * from './sign-up.input'
+

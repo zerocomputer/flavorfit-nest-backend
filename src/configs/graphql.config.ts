@@ -1,8 +1,19 @@
+import { ApolloDriverConfig } from '@nestjs/apollo'
 import { ConfigService } from '@nestjs/config'
 
-export const graphqlConfig = (configService: ConfigService) => ({
+interface GraphQlContext {
+	req: Request;
+	res: Response;
+}
+
+export const graphqlConfig = (configService: ConfigService): Omit<ApolloDriverConfig, "driver"> => ({
 	autoSchemaFile: true,
 	sortSchema: true,
-	playground: configService.getOrThrow('NODE_ENV') !== 'production',
-	context: ({ req, res }) => ({ req, res }),
+	context: (context: GraphQlContext) => ({ req: context.req, res: context.res }),
+	fieldResolverEnhancers: ["guards", "interceptors", "filters"],
+	playground: configService.getOrThrow('NODE_ENV') !== 'production' ? {
+		settings: {
+			'request.credentials': 'include', // Разрешает Playground отправлять cookies
+		},
+	} : false,
 })

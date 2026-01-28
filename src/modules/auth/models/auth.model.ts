@@ -1,9 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 
 @ObjectType()
-export class JwtPayload {
+export class AuthModel {
 	@Field()
 	accessToken: string;
-	@Field()
-	refreshToken: string;
 }

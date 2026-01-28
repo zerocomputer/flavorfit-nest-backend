@@ -5,6 +5,9 @@ import { JwtPayload } from 'src/common/interfaces'
 
 @Injectable()
 export class TokensService {
+	public readonly ACCESS_TOKEN_EXPIRATION_HOURS = 1;
+	public readonly REFRESH_TOKEN_EXPIRATION_DAYS = 7;
+
 	constructor(
 		private readonly jwtService: JwtServiceLib,
 		private readonly configService: ConfigService,
@@ -12,9 +15,8 @@ export class TokensService {
 
 	/**
 	 * Генерировать пару токенов
-	 * @param accountId
-	 * @param profileId
-	 * @returns
+	 * @param sub
+	 * @returns { accessToken: string; refreshToken: string }
 	 */
 	async generateTokens(sub: string) {
 		const payload: JwtPayload = {
@@ -22,12 +24,12 @@ export class TokensService {
 		};
 
 		const accessToken = await this.jwtService.signAsync(payload, { 
-			expiresIn: '1h',
-			secret: this.configService.get<string>('JWT_SECRET'),
+			expiresIn: `${this.ACCESS_TOKEN_EXPIRATION_HOURS}h`,
+			secret: this.configService.get<string>('ACCESS_JWT_SECRET'),
 		});
 		const refreshToken = await this.jwtService.signAsync(payload, { 
-			expiresIn: '7d',
-			secret: this.configService.get<string>('JWT_SECRET'),
+			expiresIn: `${this.REFRESH_TOKEN_EXPIRATION_DAYS}d`,
+			secret: this.configService.get<string>('REFRESH_JWT_SECRET'),
 		});
 
 		return { accessToken, refreshToken };

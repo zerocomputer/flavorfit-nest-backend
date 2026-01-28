@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { hash } from 'argon2'
 import { UserRole } from 'prisma/generated/prisma/enums'
 import { PrismaService } from 'src/modules/prisma/services'
-import { CreateUserInput } from '../dto'
-import { FindUserInput } from '../dto/find-user.input'
+import { CreateUserInput, FindUserInput } from '../dto'
 
 @Injectable()
 export class UsersService {
@@ -21,7 +20,7 @@ export class UsersService {
 			where: {
 				id: input.id,
 				email: input.email
-			}
+			},
 		})
 	}
 
