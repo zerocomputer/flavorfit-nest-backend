@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { verify } from 'argon2'
 import { Response } from 'express'
+import { UserRole } from 'prisma/generated/prisma/enums'
 import { UsersService } from 'src/modules/users/services'
 import { SignInInput, SignUpInput } from '../dto'
 import { TokensService } from './tokens.service'
@@ -20,11 +21,11 @@ export class AuthService {
 	 * @returns 
 	 */
 	async signUp(input: SignUpInput) {
-		if (await this.usersService.find({ email: input.email })) {
+		if (await this.usersService.findOne({ email: input.email })) {
 			throw new Error('User already exists');
 		}
 		const user = await this.usersService.create(input);
-		return this.tokensService.generateTokens(user.id);
+		return this.tokensService.generateTokens(user.id, user.role);
 	}
 
 	/**
@@ -33,14 +34,14 @@ export class AuthService {
 	 * @returns 
 	 */
 	async signIn(input: SignInInput) {
-		const user = await this.usersService.find({ email: input.email });
+		const user = await this.usersService.findOne({ email: input.email });
 		if (!user) {
 			throw new Error('User not found');
 		}
 		if (await verify(user.passwordHash, input.password) === false) {
 			throw new Error('Invalid password');
 		}
-		return this.tokensService.generateTokens(user.id);
+		return this.tokensService.generateTokens(user.id, user.role);
 	}
 
 	/**
@@ -48,8 +49,8 @@ export class AuthService {
 	 * @param userId 
 	 * @returns 
 	 */
-	async refreshTokens(userId: string) {
-		return this.tokensService.generateTokens(userId);
+	async refreshTokens(userId: string, userRole: UserRole) {
+		return this.tokensService.generateTokens(userId, userRole);
 	}
 
 	/**

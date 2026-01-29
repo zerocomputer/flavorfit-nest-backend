@@ -2,6 +2,7 @@ import { UseGuards } from '@nestjs/common'
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
 import type { Response } from 'express'
 import { AuthRefreshGuard } from 'src/common/guards'
+import { JwtPayload } from 'src/common/interfaces'
 import { SignInInput, SignUpInput } from './dto'
 import { AuthModel } from './models'
 import { AuthService } from './services'
@@ -42,13 +43,22 @@ export class AuthResolver {
 	@UseGuards(AuthRefreshGuard)
 	async refreshToken(
 		@Context("res") res: Response,
-		@Context("req") req: Request & { user: { sub: string } }
+		@Context("req") req: Request & { user: JwtPayload }
 	): Promise<AuthModel> {
-		const tokens = await this.authService.refreshTokens(req.user.sub);
+		const tokens = await this.authService.refreshTokens(req.user.sub, req.user.r);
 		this.authService.setRefreshCookie(res, tokens.refreshToken);
 		
 		return { 
 			accessToken: tokens.accessToken 
 		};
+	}
+
+	@Mutation(() => Boolean)
+	@UseGuards(AuthRefreshGuard)
+	async logout(
+		@Context("res") res: Response,
+	): Promise<boolean> {
+		this.authService.setRefreshCookie(res, null);
+		return true;
 	}
 }

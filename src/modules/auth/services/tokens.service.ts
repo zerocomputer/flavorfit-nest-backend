@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService as JwtServiceLib } from '@nestjs/jwt'
+import { UserRole } from 'prisma/generated/prisma/enums'
 import { JwtPayload } from 'src/common/interfaces'
 
 @Injectable()
@@ -18,9 +19,10 @@ export class TokensService {
 	 * @param sub
 	 * @returns { accessToken: string; refreshToken: string }
 	 */
-	async generateTokens(sub: string) {
+	async generateTokens(sub: string, role: UserRole) {
 		const payload: JwtPayload = {
 			sub,
+			r: role,
 		};
 
 		const accessToken = await this.jwtService.signAsync(payload, { 

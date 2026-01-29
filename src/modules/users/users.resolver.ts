@@ -1,7 +1,9 @@
 import { NotFoundException, UseGuards } from '@nestjs/common'
-import { Query, Resolver } from '@nestjs/graphql'
+import { Args, Query, Resolver } from '@nestjs/graphql'
+import { Roles } from 'src/common/decorators'
 import { User } from 'src/common/decorators/user.decorator'
 import { AuthAccessGuard } from 'src/common/guards'
+import { FindWithUserPaginationInput } from './dto'
 import { UserModel } from './models/user.model'
 import { UsersService } from './services'
 
@@ -16,12 +18,18 @@ export class UsersResolver {
 	async me(
 		@User() user
 	): Promise<UserModel> {
-		const tryUser = await this.usersService.find({id: user.sub});
+		const tryUser = await this.usersService.findOne({id: user.sub});
 
 		if (!tryUser) {
 			throw new NotFoundException('User not found');
 		}
 
 		return tryUser;
+	}
+
+	@Query(() => [UserModel])
+	@Roles('ADMIN')
+	async users(@Args() args: FindWithUserPaginationInput): Promise<UserModel[]> {
+		return this.usersService.findAll(args);
 	}
 }

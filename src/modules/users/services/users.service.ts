@@ -3,6 +3,7 @@ import { hash } from 'argon2'
 import { UserRole } from 'prisma/generated/prisma/enums'
 import { PrismaService } from 'src/modules/prisma/services'
 import { CreateUserInput, FindUserInput } from '../dto'
+import { FindWithUserPaginationInput } from '../dto/find-with-user-pagination.input'
 
 @Injectable()
 export class UsersService {
@@ -15,13 +16,31 @@ export class UsersService {
 	 * @param input 
 	 * @returns 
 	 */
-	async find(input: FindUserInput) {
+	async findOne(input: FindUserInput) {
 		return this.prismaService.user.findFirst({
 			where: {
-				id: input.id,
-				email: input.email
+				OR: [
+					{
+						id: input.id,
+					},
+					{
+						email: input.email
+					}
+				],
 			},
 		})
+	}
+
+	/**
+	 * Получение всех пользователей с пагинацией
+	 * @param input 
+	 * @returns 
+	 */
+	async findAll({ limit, offset }: FindWithUserPaginationInput) {
+		return this.prismaService.user.findMany({
+			take: limit,
+			skip: offset
+		});
 	}
 
 	/**
