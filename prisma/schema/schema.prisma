@@ -10,6 +10,13 @@ generator client {
   output       = "../generated/prisma"
 }
 
+generator models {
+  moduleFormat       = "cjs"
+  provider           = "node node_modules/prisma-nestjs-graphql"
+  output             = "../generated/models"
+  prismaClientImport = "../../prisma/client"
+}
+
 datasource db {
   provider = "postgresql"
 }
