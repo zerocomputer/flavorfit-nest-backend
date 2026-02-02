@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { hash } from 'argon2'
 import { UserRole } from 'prisma/generated/prisma/enums'
+import { UserInclude, UserUpdateInput, UserWhereInput } from 'prisma/generated/prisma/models'
 import { PrismaService } from 'src/modules/prisma/services'
 import { CreateUserInput, FindUserInput } from '../dto'
-import { FindWithUserPaginationInput } from '../dto/find-with-user-pagination.input'
 
 @Injectable()
 export class UsersService {
@@ -11,24 +11,28 @@ export class UsersService {
 		private readonly prismaService: PrismaService,
 	) {}
 
+	buildFindOrWhere(input: FindUserInput) {
+		const where: UserWhereInput = { OR: [] };
+	
+		for (let key of Object.keys(input)) {
+			if (where.OR) where.OR[key] = { 
+				[key]: input[key] 
+			};
+		}
+
+		return where;
+	}
+
 	/**
 	 * Поиск пользователя
-	 * @param input 
+	 * @param where 
 	 * @returns 
 	 */
-	async findOne(input: FindUserInput) {
+	async findOne(where: UserWhereInput, include?: UserInclude) {
 		return this.prismaService.user.findFirst({
-			where: {
-				OR: [
-					{
-						id: input.id,
-					},
-					{
-						email: input.email
-					}
-				],
-			},
-		})
+			where,
+			include,
+		});
 	}
 
 	/**
@@ -36,10 +40,9 @@ export class UsersService {
 	 * @param input 
 	 * @returns 
 	 */
-	async findAll({ limit, offset }: FindWithUserPaginationInput) {
+	async findAll(input: FindUserInput) {
 		return this.prismaService.user.findMany({
-			take: limit,
-			skip: offset
+			where: this.buildFindOrWhere(input)
 		});
 	}
 
@@ -48,17 +51,29 @@ export class UsersService {
 	 * @param input 
 	 * @returns 
 	 */
-	async create(input: CreateUserInput, role?: UserRole) {
-		const passwordHash = await hash(input.password);
+	async create({password, ...input}: CreateUserInput, role: UserRole = UserRole.USER) {
+		const passwordHash = await hash(password);
 		
 		return this.prismaService.user.create({
 			data: {
 				role,
-				firstName: input.firstName,
-				lastName: input.lastName,
-				email: input.email,
+				...input,
 				passwordHash,
 			}
+		})
+	}
+
+	/**
+	 * Обновление пользователя
+	 * @param input 
+	 * @returns 
+	 */
+	async update(userId: string, input: UserUpdateInput) {
+		return this.prismaService.user.update({
+			where: {
+				id: userId,
+			},
+			data: input,
 		})
 	}
 }

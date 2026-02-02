@@ -7,4 +7,7 @@ export class FindUserInput {
 
 	@Field({ nullable: true })
 	email?: string;
+
+	@Field({ nullable: true })
+	role?: string;
 }

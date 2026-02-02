@@ -1,0 +1,94 @@
+// Пользователи
+// Модели: пользователя, профиля (измерения), социальные сети, платежные методы
+
+enum Gender {
+  MAN
+  WOMAN
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  COURIER
+  SUPPORT
+}
+
+enum PaymentMethodType {
+  SBP
+  CARD
+}
+
+model User {
+  id String @id @unique @default(cuid())
+
+  role         UserRole
+  firstName    String
+  lastName     String
+  passwordHash String
+
+  gender Gender
+
+  email       String
+  phoneNumber String?
+
+  biography String?
+  photoUrl  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Отношения
+  profiles       Profile[]
+  socialNetworks SocialNetwork[]
+  paymentMethods PaymentMethod[]
+
+  @@map("users")
+}
+
+model Profile {
+  id String @id @unique @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  height             Int
+  currentWeight      Int
+  targetWeight       Int
+  waistCircumference Int
+  chestCircumference Int
+  hipsCircumference  Int
+  armCircumference   Int
+
+  createdAt DateTime @default(now())
+
+  @@map("profiles")
+}
+
+model SocialNetwork {
+  id String @id @unique @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  url String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("social-networks")
+}
+
+model PaymentMethod {
+  id String @id @unique @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name String
+  type PaymentMethodType
+  data Json
+
+  createdAt DateTime @default(now())
+
+  @@map("payment-methods")
+}

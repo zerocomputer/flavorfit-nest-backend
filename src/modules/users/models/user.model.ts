@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql'
-import { UserRole } from 'prisma/generated/prisma/enums'
+import { Gender, UserRole } from 'prisma/generated/prisma/enums'
+import { ProfileModel } from './profile.model'
 
 @ObjectType()
 export class UserModel {
@@ -8,20 +9,26 @@ export class UserModel {
 
 	@Field()
 	role: UserRole;
-
 	@Field()
 	firstName: string;
 	@Field()
 	lastName: string;
+	
+	@Field()
+	gender: Gender;
+
 	@Field()
 	email: string;
- 	@Field(() => String, { nullable: true })
-	phoneNumber: string | null;
+	@Field()
+	phoneNumber: string;
 
-  @Field(() => Date, { nullable: true })
-	birthDate: Date | null;
-  @Field(() => String, { nullable: true })
-	profilePhotoUrl: string | null;
+	@Field()
+	biography: string;
+	@Field()
+	photoUrl: string;
+
+	@Field(() => [ProfileModel])
+	profiles: ProfileModel[]
 
 	@Field()
 	createdAt: Date;

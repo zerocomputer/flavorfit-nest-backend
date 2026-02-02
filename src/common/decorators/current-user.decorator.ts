@@ -3,7 +3,7 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 import { GqlExecutionContext } from '@nestjs/graphql'
 import { JwtPayload } from '../interfaces'
 
-export const User = createParamDecorator(
+export const CurrentUser = createParamDecorator(
   (data: string, ctx: ExecutionContext) => {
     const context = GqlExecutionContext.create(ctx)
     const request = context.getContext().req
