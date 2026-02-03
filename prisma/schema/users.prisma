@@ -38,9 +38,13 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Отношения
-  profiles       Profile[]
-  socialNetworks SocialNetwork[]
-  paymentMethods PaymentMethod[]
+  profiles             Profile[]
+  socialNetworks       SocialNetwork[]
+  paymentMethods       PaymentMethod[]
+  recipes              Recipe[]
+  recipeComments       RecipeComment[]
+  recipeOrCommentLikes RecipeOrCommentLikes[]
+  recipeViews          RecipeView[]
 
   @@map("users")
 }
