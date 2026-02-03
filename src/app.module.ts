@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { AppResolver } from './app.resolver'
 import { graphqlConfig, jwtConfig } from './configs'
 import { AuthModule } from './modules/auth/auth.module'
+import { RecipesModule } from './modules/recipes/recipes.module'
 import { UsersModule } from './modules/users/users.module'
 
 @Module({
@@ -27,6 +28,7 @@ import { UsersModule } from './modules/users/users.module'
 
     UsersModule,
     AuthModule,
+    RecipesModule,
   ],
   providers: [AppResolver],
 })
