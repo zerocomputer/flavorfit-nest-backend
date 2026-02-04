@@ -5,7 +5,6 @@ enum Difficulty {
 }
 
 enum Unit {
-  CM
   ML
   GRAM
   UNITS
@@ -33,10 +32,11 @@ model Recipe {
   weight        Float
 
   // Для заказа готового блюда
+  canBeOrder       Boolean @default(false) @map("can_be_order")
   price            Float
-  minUnitsForOrder Int   @map("min_units_for_order")
-  maxUnitsForOrder Int   @map("max_units_for_order")
-  cookingTime      Int   @map("cooking_time")
+  minUnitsForOrder Int     @map("min_units_for_order")
+  maxUnitsForOrder Int     @map("max_units_for_order")
+  cookingTime      Int     @map("cooking_time")
 
   difficulty Difficulty
 
@@ -53,6 +53,7 @@ model Recipe {
   recipeIngredients    RecipeIngredient[]
   recipeViews          RecipeView[]
 
+  @@unique([name, deletedAt])
   @@map("recipes")
 }
 
@@ -60,7 +61,7 @@ model RecipeCategory {
   id String @id @unique @default(cuid())
 
   // Основная информация
-  name String
+  name String  @unique
   icon String?
 
   // Родительская категория
@@ -77,9 +78,12 @@ model RecipeCategory {
 model RecipeImage {
   id String @id @unique @default(cuid())
 
+  // Номер по порядку непосредственно внутри рецепта
+  index Int
+
   // Рецепт
-  receptId String
-  recept   Recipe @relation(fields: [receptId], references: [id], onDelete: Cascade)
+  recipeId String @map("recipe_id")
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   // Ссылка на изображение
   imageUrl String @map("image_url")
@@ -89,6 +93,7 @@ model RecipeImage {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
+  @@unique([recipeId, index])
   @@map("recipe_images")
 }
 
@@ -96,8 +101,8 @@ model RecipeStep {
   id String @id @unique @default(cuid())
 
   // Рецепт
-  receptId String
-  recept   Recipe @relation(fields: [receptId], references: [id], onDelete: Cascade)
+  recipeId String @map("recipe_id")
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   // Номер по порядку непосредственно внутри рецепта
   index Int
@@ -112,6 +117,7 @@ model RecipeStep {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
+  @@unique([recipeId, index])
   @@map("recipe_steps")
 }
 
@@ -166,8 +172,8 @@ model RecipeView {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Рецепт
-  receptId String @map("recept_id")
-  recept   Recipe @relation(fields: [receptId], references: [id], onDelete: Cascade)
+  recipeId String @map("recipe_id")
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   // Временные метки 
   createdAt DateTime @default(now()) @map("created_at")
@@ -206,8 +212,8 @@ model RecipeIngredient {
   id String @id @unique @default(cuid())
 
   // Рецепт
-  receptId String @map("recept_id")
-  recept   Recipe @relation(fields: [receptId], references: [id], onDelete: Cascade)
+  recipeId String @map("recipe_id")
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   // Ингредиент
   ingredientId String     @map("ingredient_id")

@@ -3,3 +3,12 @@ export * from './find-all-ingredient.input'
 export * from './find-ingredient.input'
 export * from './update-ingredient.input'
 
+export * from './add-image-recipe.input'
+export * from './add-ingredient-recipe.input'
+export * from './create-recipe.input'
+export * from './find-all-recipe.input'
+export * from './find-one-recipe.input'
+export * from './update-image-recipe.input'
+export * from './update-ingredient-recipe.input'
+export * from './update-recipe.input'
+
