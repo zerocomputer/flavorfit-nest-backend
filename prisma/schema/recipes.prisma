@@ -180,7 +180,7 @@ model Ingredient {
 
   // Основная информация
   icon        String
-  name        String @unique
+  name        String
   description String
   unit        Unit
 
@@ -198,6 +198,7 @@ model Ingredient {
   // Отношения
   recipeIngredients RecipeIngredient[]
 
+  @@unique([name, deletedAt])
   @@map("ingredients")
 }
 

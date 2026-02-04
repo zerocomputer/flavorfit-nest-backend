@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { Roles } from 'src/common/decorators'
 import { CreateIngredientInput, FindAllIngredientInput, FindIngredientInput, UpdateIngredientInput } from './dto'
 import { IngredientModel } from './models'
 import { IngredientsService } from './services'
@@ -11,6 +12,7 @@ export class IngredientsResolver {
 	) {}
 
 	@Mutation(() => IngredientModel)
+	@Roles('ADMIN')
 	async createIngredient(
 		@Args('input') input: CreateIngredientInput, 
 	) {
@@ -18,6 +20,7 @@ export class IngredientsResolver {
 	}
 
 	@Mutation(() => IngredientModel)
+	@Roles('ADMIN')
 	async updateIngredient(
 		@Args('ingredientId', { type: () => String }) ingredientId: string,
 		@Args('input') input: UpdateIngredientInput,
@@ -27,6 +30,7 @@ export class IngredientsResolver {
 	}
 
 	@Mutation(() => Boolean)
+	@Roles('ADMIN')
 	async deleteIngredient(
 		@Args('ingredientId', { type: () => String }) ingredientId: string,
 	) {
