@@ -30,35 +30,35 @@ export class CreateRecipeInput {
 	carbohydrates: number
 	@IsNumber()
 	@Field(() => Number)
-  protein: number
+	protein: number
 	@IsNumber()
 	@Field(() => Number)
-  fat: number
+	fat: number
 	@IsNumber()
 	@Field(() => Number)
-  fiber: number
+	fiber: number
 	@IsNumber()
 	@Field(() => Number)
-  kcal: number
+	kcal: number
 	@IsNumber()
 	@Field(() => Float)
-  weight: number
+	weight: number
 
 	@IsBoolean()
 	@Field(() => Boolean)
 	canBeOrder: boolean
 	@IsNumber()
 	@Field(() => Number)
-  price: number
+	price: number
 	@IsNumber()
 	@Field(() => Number)
-  minUnitsForOrder: number
+	minUnitsForOrder: number
 	@IsNumber()
 	@Field(() => Number)
-  maxUnitsForOrder: number
+	maxUnitsForOrder: number
 	@IsNumber()
 	@Field(() => Number)
-  cookingTime: number
+	cookingTime: number
 
 	@IsEnum(Difficulty)
 	@Field(() => Difficulty)

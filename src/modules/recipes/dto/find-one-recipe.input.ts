@@ -16,5 +16,10 @@ export class FindOneRecipeInput {
 	@IsOptional()
 	@IsString()
 	@Field(() => String, { nullable: true })
+	slug?: string;
+
+	@IsOptional()
+	@IsString()
+	@Field(() => String, { nullable: true })
 	description?: string;
 }

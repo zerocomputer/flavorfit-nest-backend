@@ -11,7 +11,8 @@ enum Unit {
 }
 
 model Recipe {
-  id String @id @unique @default(cuid())
+  id   String @id @unique @default(cuid())
+  slug String @unique
 
   // Автор
   userId String @map("user_id")

@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { RecipeWhereInput } from 'prisma/generated/prisma/models'
 import { PrismaService } from 'src/modules/prisma/services'
 import { AddImageRecipeInput, AddIngredientRecipeInput, CreateRecipeInput, FindAllRecipeInput, FindOneRecipeInput, UpdateImageRecipeInput, UpdateIngredientRecipeInput, UpdateRecipeInput } from '../dto'
+import { textToSlug } from 'src/utils'
 
 @Injectable()
 export class RecipesService {
 	constructor(
 		private readonly prismaService: PrismaService,
-	) {}
+	) { }
 
 	/**
 	 * Создать рецепт
@@ -16,8 +17,10 @@ export class RecipesService {
 	 * @returns 
 	 */
 	async create(userId: string, input: CreateRecipeInput) {
+		const slug = `${textToSlug(input.name)}-${userId}`;
 		return this.prismaService.recipe.create({
 			data: {
+				slug,
 				userId,
 				...input,
 			},
@@ -31,11 +34,22 @@ export class RecipesService {
 	 * @returns 
 	 */
 	async update(recipeId: string, input: UpdateRecipeInput) {
+		const tryToGet = await this.findOne({ id: recipeId });
+
+		if (!tryToGet) {
+			throw new NotFoundException('Recipe not found');
+		}
+
+		const slug = `${textToSlug(input.name ?? tryToGet.name)}-${tryToGet.userId}`;
+
 		return this.prismaService.recipe.update({
 			where: {
 				id: recipeId
 			},
-			data: input,
+			data: {
+				slug,
+				...input
+			},
 		})
 	}
 
@@ -55,7 +69,7 @@ export class RecipesService {
 	 * @param param0 
 	 * @returns 
 	 */
-	async updateIngredient({id, units}: UpdateIngredientRecipeInput) {
+	async updateIngredient({ id, units }: UpdateIngredientRecipeInput) {
 		return this.prismaService.recipeIngredient.update({
 			where: {
 				id,
@@ -95,7 +109,7 @@ export class RecipesService {
 	 * @param param0 
 	 * @returns 
 	 */
-	async updateImage({id, ...data}: UpdateImageRecipeInput) {
+	async updateImage({ id, ...data }: UpdateImageRecipeInput) {
 		return this.prismaService.recipeImage.update({
 			where: { id },
 			data,
@@ -124,8 +138,8 @@ export class RecipesService {
 	_buildFindWhere(input: FindAllRecipeInput | FindOneRecipeInput) {
 		const where: RecipeWhereInput = {
 			OR: [],
-			deletedAt: input['deleted'] === true 
-				? { not: null } 
+			deletedAt: input['deleted'] === true
+				? { not: null }
 				: null
 		};
 
