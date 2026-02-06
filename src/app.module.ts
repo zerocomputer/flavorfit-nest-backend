@@ -12,18 +12,19 @@ import { UsersModule } from './modules/users/users.module'
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    
+
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: graphqlConfig,
     }),
-    
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: jwtConfig,
+      global: true,
     }),
 
     UsersModule,
@@ -32,4 +33,4 @@ import { UsersModule } from './modules/users/users.module'
   ],
   providers: [AppResolver],
 })
-export class AppModule {}
+export class AppModule { }

@@ -2,7 +2,9 @@ import { Field, Float, InputType, registerEnumType } from '@nestjs/graphql'
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator'
 import { Difficulty } from 'prisma/generated/prisma/enums'
 
-registerEnumType(Difficulty);
+registerEnumType(Difficulty, {
+	name: 'Difficulty'
+});
 
 @InputType()
 export class CreateRecipeInput {
