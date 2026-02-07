@@ -1,16 +1,31 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { RecipesService } from "./services/recipes.service";
-import { RecipeImageModel, RecipeIngredientModel, RecipeModel } from "./models";
+import { RecipeCategoryModel, RecipeImageModel, RecipeIngredientModel, RecipeModel } from "./models";
 import { CurrentUser } from "src/common/decorators/current-user.decorator";
-import { AddImageRecipeInput, AddIngredientRecipeInput, CreateRecipeInput, FindAllRecipeInput, FindOneRecipeInput, UpdateImageRecipeInput, UpdateIngredientRecipeInput, UpdateRecipeInput } from "./dto";
+import { AddImageRecipeInput, AddIngredientRecipeInput, CreateRecipeCategoryInput, CreateRecipeInput, FindAllRecipeInput, FindOneRecipeInput, UpdateImageRecipeInput, UpdateIngredientRecipeInput, UpdateRecipeInput } from "./dto";
 import { UseGuards } from "@nestjs/common";
 import { AuthAccessGuard } from "src/common/guards";
+import { RecipeCategoriesService } from "./services";
+import { Roles } from "src/common/decorators";
 
 @Resolver()
 export class RecipesResolver {
     constructor(
         private readonly recipesService: RecipesService,
+        private readonly recipeCategoryService: RecipeCategoriesService,
     ) { }
+
+    ////////////////////////////
+    // Recipe Categories
+    ///////////////////////////
+
+    @Roles("ADMIN")
+    @Mutation(() => RecipeCategoryModel)
+    async createRecipeCategory(
+        @Args('input') input: CreateRecipeCategoryInput,
+    ) {
+        return this.recipeCategoryService.create(input);
+    }
 
     ///////////////////////////
     // Recipes
@@ -19,7 +34,7 @@ export class RecipesResolver {
     @UseGuards(AuthAccessGuard)
     @Mutation(() => RecipeModel)
     async createRecipe(
-        @CurrentUser('id') userId: string,
+        @CurrentUser('sub') userId: string,
         @Args('input') input: CreateRecipeInput,
     ) {
         return this.recipesService.create(userId, input);

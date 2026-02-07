@@ -12,3 +12,4 @@ export * from './update-image-recipe.input'
 export * from './update-ingredient-recipe.input'
 export * from './update-recipe.input'
 
+export * from './create-recipe-category.input'
