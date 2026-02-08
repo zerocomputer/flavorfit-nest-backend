@@ -3,10 +3,11 @@ import { RecipesService } from "./services/recipes.service";
 import { RecipeCategoryModel, RecipeImageModel, RecipeIngredientModel, RecipeModel } from "./models";
 import { CurrentUser } from "src/common/decorators/current-user.decorator";
 import { AddImageRecipeInput, AddIngredientRecipeInput, CreateRecipeCategoryInput, CreateRecipeInput, FindAllRecipeInput, FindOneRecipeInput, UpdateImageRecipeInput, UpdateIngredientRecipeInput, UpdateRecipeInput } from "./dto";
-import { UseGuards } from "@nestjs/common";
+import { NotFoundException, UseGuards } from "@nestjs/common";
 import { AuthAccessGuard } from "src/common/guards";
 import { RecipeCategoriesService } from "./services";
 import { Roles } from "src/common/decorators";
+import type { JwtPayload } from "src/common/interfaces";
 
 @Resolver()
 export class RecipesResolver {
@@ -52,9 +53,13 @@ export class RecipesResolver {
     @UseGuards(AuthAccessGuard)
     @Query(() => RecipeModel)
     async findOneRecipe(
+        @CurrentUser() user: JwtPayload,
         @Args('input') input: FindOneRecipeInput,
     ) {
-        return this.recipesService.findOne(input);
+        const recipe = await this.recipesService.findOne(input);
+        if (!recipe) throw new NotFoundException('Recipe not found');
+        this.recipesService.view(user, recipe.id);
+        return recipe;
     }
 
     @UseGuards(AuthAccessGuard)

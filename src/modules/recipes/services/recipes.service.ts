@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { RecipeWhereInput } from 'prisma/generated/prisma/models'
 import { PrismaService } from 'src/modules/prisma/services'
 import { AddImageRecipeInput, AddIngredientRecipeInput, CreateRecipeInput, FindAllRecipeInput, FindOneRecipeInput, UpdateImageRecipeInput, UpdateIngredientRecipeInput, UpdateRecipeInput } from '../dto'
 import { textToSlug } from 'src/utils'
+import { JwtPayload } from 'src/common/interfaces'
+import { RecipeModel } from '../models'
 
 @Injectable()
 export class RecipesService {
@@ -25,6 +27,20 @@ export class RecipesService {
 				...input,
 			},
 		})
+	}
+
+	/**
+	 * Отметить просмотр рецепта для пользователя
+	 * @param user 
+	 * @param recipe 
+	 */
+	async view(user: JwtPayload, recipeId: string) {
+		if (
+			user.r === 'USER' &&
+			!(await this.prismaService.recipeView.findFirst({ where: { recipeId } }))
+		) {
+			await this.prismaService.recipeView.create({ data: { userId: user.sub, recipeId } });
+		}
 	}
 
 	/**
