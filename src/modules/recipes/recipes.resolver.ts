@@ -1,11 +1,10 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { RecipesService } from "./services/recipes.service";
 import { RecipeCategoryModel, RecipeImageModel, RecipeIngredientModel, RecipeModel } from "./models";
 import { CurrentUser } from "src/common/decorators/current-user.decorator";
-import { AddImageRecipeInput, AddIngredientRecipeInput, CreateRecipeCategoryInput, CreateRecipeInput, FindAllRecipeInput, FindOneRecipeInput, UpdateImageRecipeInput, UpdateIngredientRecipeInput, UpdateRecipeInput } from "./dto";
-import { NotFoundException, UseGuards } from "@nestjs/common";
+import { AddImageRecipeInput, AddIngredientRecipeInput, CreateRecipeCategoryInput, CreateRecipeInput, FindAllRecipeInput, FindOneRecipeInput, RecipeOrCommentLikeInput, UpdateImageRecipeInput, UpdateIngredientRecipeInput, UpdateRecipeInput } from "./dto";
+import { BadRequestException, NotFoundException, UseGuards } from "@nestjs/common";
 import { AuthAccessGuard } from "src/common/guards";
-import { RecipeCategoriesService } from "./services";
+import { RecipesService, RecipeCategoriesService, RecipeLikesService } from "./services";
 import { Roles } from "src/common/decorators";
 import type { JwtPayload } from "src/common/interfaces";
 
@@ -14,6 +13,7 @@ export class RecipesResolver {
     constructor(
         private readonly recipesService: RecipesService,
         private readonly recipeCategoryService: RecipeCategoriesService,
+        private readonly recipeLikesService: RecipeLikesService,
     ) { }
 
     ////////////////////////////
@@ -58,8 +58,19 @@ export class RecipesResolver {
     ) {
         const recipe = await this.recipesService.findOne(input);
         if (!recipe) throw new NotFoundException('Recipe not found');
-        this.recipesService.view(user, recipe.id);
+        await this.recipesService.view(user, recipe.id);
         return recipe;
+    }
+
+    @UseGuards(AuthAccessGuard)
+    @Query(() => Boolean)
+    async likeRecipeOrComment(
+        @CurrentUser() user: JwtPayload,
+        @Args('input') input: RecipeOrCommentLikeInput,
+    ) {
+        if (Object.keys(input).length === 0 || Object.keys(input).length > 1)
+            throw new BadRequestException('Incorrect target to like');
+        return this.recipeLikesService.toggle(user.sub, input);
     }
 
     @UseGuards(AuthAccessGuard)

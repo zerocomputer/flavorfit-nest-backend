@@ -13,3 +13,5 @@ export * from './update-ingredient-recipe.input'
 export * from './update-recipe.input'
 
 export * from './create-recipe-category.input'
+
+export * from './recipe-or-comment-like.input'
