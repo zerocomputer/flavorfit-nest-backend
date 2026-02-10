@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common'
 import { PrismaModule } from '../prisma/prisma.module'
 import { IngredientsResolver } from './ingredients.resolver'
-import { IngredientsService, RecipeCategoriesService, RecipeLikesService, RecipesService } from './services'
+import { IngredientsService, RecipeCategoriesService, RecipeCommentsService, RecipeLikesService, RecipesService } from './services'
 import { RecipesResolver } from './recipes.resolver'
+import { RecipeCommentsResolver } from './recipe-comments.resolver'
 
 @Module({
 	imports: [
@@ -15,6 +16,8 @@ import { RecipesResolver } from './recipes.resolver'
 		RecipesResolver,
 		RecipeCategoriesService,
 		RecipeLikesService,
+		RecipeCommentsService,
+		RecipeCommentsResolver,
 	]
 })
 export class RecipesModule { }
