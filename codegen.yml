@@ -1,0 +1,15 @@
+overwrite: true
+schema: "src/schema.gql" # Path to your generated or defined schema
+# documents: "src/**/*.graphql" # Path to your GraphQL operation files (queries/mutations)
+
+generates:
+  src/generated/graphql.ts: # Output file path
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-resolvers" # For generating server-side resolver types
+    config:
+      # Optional: customize mappers, naming conventions, etc.
+      # For example, to map types to your NestJS classes/interfaces
+      # mappers:
+      #   User: ./src/user/models/user.model#User

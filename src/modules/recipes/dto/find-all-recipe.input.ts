@@ -15,6 +15,16 @@ export class FindAllRecipeInput extends PaginationInput {
 	categoryId?: string;
 
 	@IsOptional()
+	@IsString()
+	@Field(() => String, { nullable: true })
+	name?: string;
+
+	@IsOptional()
+	@IsString()
+	@Field(() => String, { nullable: true })
+	description?: string;
+
+	@IsOptional()
 	@IsBoolean()
 	@Field(() => Boolean, { nullable: true })
 	canBeOrder?: boolean;

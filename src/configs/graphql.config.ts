@@ -1,5 +1,6 @@
 import { ApolloDriverConfig } from '@nestjs/apollo'
 import { ConfigService } from '@nestjs/config'
+import { join } from 'path';
 
 interface GraphQlContext {
 	req: Request;
@@ -7,7 +8,7 @@ interface GraphQlContext {
 }
 
 export const graphqlConfig = (configService: ConfigService): Omit<ApolloDriverConfig, "driver"> => ({
-	autoSchemaFile: true,
+	autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
 	sortSchema: true,
 	context: (context: GraphQlContext) => ({ req: context.req, res: context.res }),
 	fieldResolverEnhancers: ["guards", "interceptors", "filters"],
