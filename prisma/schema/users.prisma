@@ -46,6 +46,10 @@ model User {
   recipeOrCommentLikes RecipeOrCommentLikes[]
   recipeViews          RecipeView[]
 
+  // Заказы
+  customerOrders Order[] @relation("customer_order")
+  courierOrders  Order[] @relation("courier_order")
+
   @@map("users")
 }
 

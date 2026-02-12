@@ -1,0 +1,61 @@
+enum OrderStatus {
+    PROCESSING
+    COOKING
+    DELIVERY
+    FINISH
+}
+
+model Order {
+    id String @id @unique @default(cuid())
+
+    // Заказчик
+    customerId String @map("customer_id")
+    customer   User   @relation(fields: [customerId], references: [id], name: "customer_order", onDelete: Cascade)
+
+    // Заказчик
+    courierId String @map("courier_id")
+    courier   User   @relation(fields: [courierId], references: [id], name: "courier_order", onDelete: Cascade)
+
+    // Общее
+    address String
+    cost    Float
+    status  OrderStatus @default(PROCESSING)
+
+    // Время доставки
+    deliveryTo DateTime @map("delivery_to")
+
+    // Временные метки 
+    createdAt        DateTime          @default(now()) @map("created_at")
+    updatedAt        DateTime          @updatedAt @map("updated_at")
+    closedAt         DateTime?         @map("closed_at")
+    orderRecipes     OrderRecipe[]
+    orderIngredients OrderIngredient[]
+
+    @@map("orders")
+}
+
+model OrderRecipe {
+    id String @id @unique @default(cuid())
+
+    orderId String @map("order_id")
+    order   Order  @relation(fields: [orderId], references: [id])
+
+    recipeId String @map("recipe_id")
+    recipe   Recipe @relation(fields: [recipeId], references: [id])
+
+    units       Int
+    costPerUnit Float
+}
+
+model OrderIngredient {
+    id String @id @unique @default(cuid())
+
+    orderId String @map("order_id")
+    order   Order  @relation(fields: [orderId], references: [id])
+
+    ingredientId String     @map("ingredient_id")
+    ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+
+    units       Float
+    costPerUnit Float
+}
