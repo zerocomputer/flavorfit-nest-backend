@@ -33,6 +33,10 @@ export class CreateOrderInput {
     @Field(() => String)
     address: string
 
+    @IsString()
+    @Field(() => String)
+    deliveryTo: string
+
     @IsOptional()
     @Field(() => [OrderRecipe])
     recipes?: OrderRecipe[]

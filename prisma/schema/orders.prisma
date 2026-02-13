@@ -13,8 +13,8 @@ model Order {
     customer   User   @relation(fields: [customerId], references: [id], name: "customer_order", onDelete: Cascade)
 
     // Заказчик
-    courierId String @map("courier_id")
-    courier   User   @relation(fields: [courierId], references: [id], name: "courier_order", onDelete: Cascade)
+    courierId String? @map("courier_id")
+    courier   User?   @relation(fields: [courierId], references: [id], name: "courier_order", onDelete: Cascade)
 
     // Общее
     address String
